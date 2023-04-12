@@ -18,7 +18,7 @@ function callWeatherAPI(key,loc)
 }
 
 ## Installation
-Check out [sysop.txt](https://github.com/mhansel7399/SyncWeather/blob/master/sysop.txt) for full installation instructions.
+Check out [sysop.txt](https://github.com/mhansel7399/SyncWeather/blob/main/sysop.txt) for full installation instructions.
 
 ## License
 
