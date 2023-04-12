@@ -1,0 +1,156 @@
+syncWXremix by KenDB3
+http://bbs.kd3.us | telnet://bbs.kd3.us
+
+Table of Contents
+
+  I) Getting a Wunderground API Key
+ II) External Program Configuration
+	 a) modopts.ini
+     a) Weather App (weather.js)
+     b) Icon Viewer (iconset.js)
+III) Icon Files
+
+--------------------
+
+I) Getting a Wunderground API Key
+
+You can get your API key for Wunderground here: http://api.wunderground.com/weather/api/
+
+I originally signed up for Stratus Plan because I thought that was the only free one, 
+turns out all three are free, it just costs money for more than 500 hits per day. 
+Sign up for at least Cumulus Plan to make sure you are getting the Severe Alerts 
+(which I am somehow still getting with the lower Stratus Plan but I'll probably upgrade too).
+
+--------------------
+
+II) External Program Configuration
+
+Setting up the Weather App (weather.js):
+
+1: If you downloaded this as a ZIP file, extract the files to a folder in your /sbbs/xtrn/ directory. This doc assumes you named the
+   folder "syncWX" (ie. /sbbs/xtrn/syncWX/). 
+
+2: Add the following section to your ctrl/modopts.ini file (typically located at /sbbs/ctrl/modopts.ini):
+
+[syncWX]
+wungrndAPIkey = <your API key here>
+weathericon_ext = .asc
+fallback_type = bbsip
+fallback = 
+
+Change the entry for "wungrndAPIkey = <your API key here>" by adding your API Key from Section I. 
+	Example:
+	wungrndAPIkey = 123456789abc1234
+
+NOTE: No quotes are needed in the modopts.ini section you added. 
+This step is now different than version 1.00, where you entered the key directly into the weather.js file. 
+This makes updates to the weather.js file easier, since you don't have to edit the javascript each time an update lands.
+
+3: If you have added custom weather icons, make sure the file extension matches in the weathericon_ext variable in modopts.ini
+   Example: The app comes with .ASC icons, if you changed to .ANS icons, you would put
+       weathericon_ext = .ans
+   Otherwise, if you did not change the icons that came with syncWXremix, then keep the default modopts.ini entry of 
+       weathericon_ext = .asc
+
+Note: Please read section III below if you are adding a new set of custom ANSI or ASCII weather icons.
+
+4: The entry for "fallback_type" can be set to: 
+		nonip
+		bbsip
+a) nonip - Choosing this means you must set the entry for "fallback" to either a 
+           United States Postal ZIP Code, an ICAO Airport Code, or an IATA Airport Code.
+		   Note: ICAO Airport Codes seem more specific and less likely to error out. 
+		   
+		   See this link for ICAO Airport Codes:
+		   https://en.wikipedia.org/wiki/International_Civil_Aviation_Organization_airport_code#Prefixes
+		   
+		   See this link for IATA Airport Codes:
+		   https://en.wikipedia.org/wiki/International_Air_Transport_Association_airport_code
+		   
+			-Example with US Postal ZIP for Beverly Hills, CA:
+				fallback_type = nonip
+				fallback = 90210
+
+			-Example with ICAO Airport Code for Providence, RI:
+				fallback_type = nonip
+				fallback = KPVD
+			
+b) bbsip - weather.js will automatically grab the public IP address of your BBS.
+		   Or, if you are using the new Synchronet v4 WebUI from echicken, it will attempt
+		   to figure out the real IP address when a caller is using the HTML 5 ftelnet 
+		   browser terminal client, which uses Web Sockets to connect. 
+           In this case, "fallback" does not need to be set to anything. 
+   
+5: Set up the External Door via Synchornet Configuration, External Programs
+
+Setting up the main door (weather.js):
+
+[weather.js]
+ 1: Name                       Your Local Weather
+ 2: Internal Code              SYNCWX
+ 3: Start-up Directory         ../xtrn/syncWX/
+ 4: Command Line               ?weather.js
+ 5: Clean-up Command Line      
+ 6: Execution Cost             None
+ 7: Access Requirements        
+ 8: Execution Requirements     
+ 9: Multiple Concurrent Users  Yes
+10: Intercept Standard I/O     No
+11: Native (32-bit) Executable No
+12: Use Shell to Execute       No
+13: Modify User Data           No
+14: Execute on Event           No (or "Logon" or "Logon, Only", it is up to you)
+15: Pause After Execution      No
+16: BBS Drop File Type         None
+17: Place Drop File In         Node Directory
+18: Time Options...
+
+----------
+
+Setting up Icon Viewer:
+
+The purpose of the iconset.js script is to see the icon files that have been designed for 
+your syncWXremix app quickly and in total. This way, if you are designing your own
+icon pack for the weather, you can make sure that 1) the icons look good, and 
+2) you are not missing any of the icons you would need. 
+
+Note: This is not meant to be seen by anyone but a sysop, so the access requirement
+is set to LEVEL 90 (or above). Also, the icon extension is set just like in weather.js, where
+it grabs the extension from /sbbs/ctrl/modopts.ini.
+
+[iconset.js]
+ 1: Name                       View Icon Set
+ 2: Internal Code              WTHRICON
+ 3: Start-up Directory         ../xtrn/syncWX/
+ 4: Command Line               ?iconset.js
+ 5: Clean-up Command Line      
+ 6: Execution Cost             None
+ 7: Access Requirements        LEVEL 90
+ 8: Execution Requirements     
+ 9: Multiple Concurrent Users  Yes
+10: Intercept Standard I/O     No
+11: Native (32-bit) Executable No
+12: Use Shell to Execute       No
+13: Modify User Data           No
+14: Execute on Event           No
+15: Pause After Execution      No
+16: BBS Drop File Type         None
+17: Place Drop File In         Node Directory
+18: Time Options...
+
+--------------------
+
+III) Icon Files
+
+When designing new icons in ANSI (.ans files), please make sure to keep the set of 
+ASCII (.asc) icons in the icons folder. You can change the weathericon_ext setting 
+in your /sbbs/xtrl/modopts.ini file, but if your user/caller is not ANSI capable, 
+the program will fall back to the ASCII icon set automatically. Simply adding your 
+ANSI icons to the icons folder and changing the weathericon_ext setting will 
+override the ASCII icons for any of your ANSI capable callers. This includes ANSI 
+callers who only have Mono capabilities instead of Color ANSI. If you are replacing 
+the ASCII icons with new CTRL-A encoded ASCII files, then this should be just fine 
+for non-ANSI callers who have TTY (Mono) ASCII Only as Synchronet will attempt to 
+convert the characters for those users, but, keep in mind, if you are using 
+Extended ASCII characters in your icon designs, this may not look as good to a 
+non-ANSI terminal user. 
