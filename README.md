@@ -8,14 +8,16 @@ Not Available
 ## Code Example
 The majority of what is happening in this app is based off of one query. Note, it combines four queries into one: conditions, forecast, astronomy, and alerts. It also adds through the "WXlang" variable the possibility for results in over 80 languages.
 
-`function callWeatherAPI(key,loc)
+```
+function callWeatherAPI(key,loc)
 {
   // Setup request to get weather for user's zip code or system zip code
   var req = new HTTPRequest();
   var resp = req.Get("http://api.weatherapi.com/v1/forecast.json?key="+key+"&q="+loc+"&days=3");
   var response = JSON.parse(resp); // Parse the JSON data returned
   return response;
-}`
+}
+```
 
 ## Installation
 Check out [sysop.txt](https://github.com/mhansel7399/SyncWeather/blob/main/sysop.txt) for full installation instructions.
