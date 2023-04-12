@@ -10,11 +10,11 @@ The majority of what is happening in this app is based off of one query. Note, i
 
 function callWeatherAPI(key,loc)
 {
-    // Setup request to get weather for user's zip code or system zip code
-    var req = new HTTPRequest();
-    var resp = req.Get("http://api.weatherapi.com/v1/forecast.json?key="+key+"&q="+loc+"&days=3");
-    var response = JSON.parse(resp); // Parse the JSON data returned
-    return response;
+// Setup request to get weather for user's zip code or system zip code
+var req = new HTTPRequest();
+var resp = req.Get("http://api.weatherapi.com/v1/forecast.json?key="+key+"&q="+loc+"&days=3");
+var response = JSON.parse(resp); // Parse the JSON data returned
+return response;
 }
 
 ## Installation
