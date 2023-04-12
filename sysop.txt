@@ -1,9 +1,9 @@
-syncWXremix by KenDB3
-http://bbs.kd3.us | telnet://bbs.kd3.us
+SyncWeather by Matthew Hansel
+telnet retrorunning.ddns.net:6502
 
 Table of Contents
 
-  I) Getting a Wunderground API Key
+  I) Getting a WeatherAPI.com Key
  II) External Program Configuration
 	 a) modopts.ini
      a) Weather App (weather.js)
@@ -14,12 +14,7 @@ III) Icon Files
 
 I) Getting a Wunderground API Key
 
-You can get your API key for Wunderground here: http://api.wunderground.com/weather/api/
-
-I originally signed up for Stratus Plan because I thought that was the only free one, 
-turns out all three are free, it just costs money for more than 500 hits per day. 
-Sign up for at least Cumulus Plan to make sure you are getting the Severe Alerts 
-(which I am somehow still getting with the lower Stratus Plan but I'll probably upgrade too).
+You can get your API key for WeatherAPI.com here: https://www.weatherapi.com/signup.aspx
 
 --------------------
 
@@ -28,15 +23,15 @@ II) External Program Configuration
 Setting up the Weather App (weather.js):
 
 1: If you downloaded this as a ZIP file, extract the files to a folder in your /sbbs/xtrn/ directory. This doc assumes you named the
-   folder "syncWX" (ie. /sbbs/xtrn/syncWX/). 
+   folder "syncWX" (ie. /sbbs/xtrn/syncWX/). If you are going to have it show up on logon, create another folder "syncWXL" (ie. /sbbs/xtrn/syncWXL/).
 
 2: Add the following section to your ctrl/modopts.ini file (typically located at /sbbs/ctrl/modopts.ini):
 
 [syncWX]
 wungrndAPIkey = <your API key here>
 weathericon_ext = .asc
-fallback_type = bbsip
-fallback = 
+#fallback_type = bbsip
+#fallback = 
 
 Change the entry for "wungrndAPIkey = <your API key here>" by adding your API Key from Section I. 
 	Example:
@@ -83,13 +78,13 @@ b) bbsip - weather.js will automatically grab the public IP address of your BBS.
    
 5: Set up the External Door via Synchornet Configuration, External Programs
 
-Setting up the main door (weather.js):
+Setting up the main door (weather_xtrn.js):
 
 [weather.js]
  1: Name                       Your Local Weather
  2: Internal Code              SYNCWX
  3: Start-up Directory         ../xtrn/syncWX/
- 4: Command Line               ?weather.js
+ 4: Command Line               ?weather_xtrn.js
  5: Clean-up Command Line      
  6: Execution Cost             None
  7: Access Requirements        
@@ -104,6 +99,29 @@ Setting up the main door (weather.js):
 16: BBS Drop File Type         None
 17: Place Drop File In         Node Directory
 18: Time Options...
+
+Setting up the logon door (weather.js):
+
+[weather.js]
+ 1: Name                       Your Local Weather
+ 2: Internal Code              SYNCWXL
+ 3: Start-up Directory         ../xtrn/syncWXL/
+ 4: Command Line               ?weather.js
+ 5: Clean-up Command Line      
+ 6: Execution Cost             None
+ 7: Access Requirements        
+ 8: Execution Requirements     
+ 9: Multiple Concurrent Users  Yes
+10: Intercept Standard I/O     No
+11: Native (32-bit) Executable No
+12: Use Shell to Execute       No
+13: Modify User Data           No
+14: Execute on Event           Logon, Only
+15: Pause After Execution      No
+16: BBS Drop File Type         None
+17: Place Drop File In         Node Directory
+18: Time Options...
+
 
 ----------
 
