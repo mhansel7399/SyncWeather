@@ -47,6 +47,16 @@ function getInfo()
     return wthrLocation;
 }
 
+function askZipCode()
+{
+    // Ask the user for input of the zip code they want for the weather
+    console.clear();
+    console.center("Get the weather for the area of your choice",80);
+    console.putmsg("Enter the Zip Code: ");
+    var wthrLocation = console.getstr();
+    return wthrLocation;
+}
+
 // This function makes the http call to weatherapi.com
 // then returns the parsed JSON as response
 function callWeatherAPI(key,loc)
@@ -258,8 +268,6 @@ function processWeatherData(response)
         }
     }
 
-
-
     if(console.term_supports(USER_ANSI)) 
     {
         console.gotoxy(20,2);
@@ -375,13 +383,18 @@ function processWeatherData(response)
                     + " / Hi " + response.forecast.forecastday[i].day.maxtemp_c + " C" + "\r\n");
             }
         }
-
-        }
-        
+    }
 }
 
-
-var userLoc = getInfo();
+if(bbs.node_action == NODE_LOGN)
+{
+    var userLoc = getInfo();
+}
+else
+{
+    var userLoc = askZipCode();
+}
+//var userLoc = getInfo();
 var wthrResp = callWeatherAPI(wungrndAPIkey,userLoc);
 processWeatherData(wthrResp);
 console.putmsg("\n\n");
