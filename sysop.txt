@@ -5,9 +5,9 @@ Table of Contents
 
   I) Getting a WeatherAPI.com Key
  II) External Program Configuration
-	 a) modopts.ini
-     a) Weather App (weather.js)
-     b) Icon Viewer (iconset.js)
+ 	a) modopts.ini
+	b) Weather App (weather.js)
+	c) Icon Viewer (iconset.js)
 III) Icon Files
 
 --------------------
@@ -29,7 +29,7 @@ Setting up the Weather App (weather.js):
 
 [syncWX]
 wungrndAPIkey = <your API key here>
-weathericon_ext = .asc
+#weathericon_ext = .asc
 #fallback_type = bbsip
 fallback = <system zip code>
 wthrDays = <# of days you want forecast - up to 3>
