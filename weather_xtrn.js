@@ -25,29 +25,6 @@ load("http.js"); //this loads the http libraries which you will need to make req
 load("sbbsdefs.js"); //loads a bunch-o-stuff that is probably beyond the understanding of mere mortals 
 load(js.exec_dir + 'websocket-helpers.js');
 
-//Try to load new wxlanguage.js file, but default to English if it is missing
-// More stuff from the original SyncWX code
-/*
-try {
-	load(js.exec_dir + 'wxlanguage.js');
-} catch (err) {
-	log("ERROR in weather.js. " + err);
-	log("ERROR in weather.js. Language will default to English. For alternate language support, get wxlanguage.js at https://raw.githubusercontent.com/KenDB3/syncWXremix/master/wxlanguage.js");
-} finally {
-	WXlang = "";
-	LocationHeader = "Your Location: ";
-	ConditionsHeader = "Current Conditions: ";
-	TempHeader = "Temp: ";
-	SunHeader = "Sunrise/Sunset: ";
-	LunarHeader = "Lunar Phase: ";
-	WindHeader = "Wind: ";
-	UVHeader = "UV Index: ";
-	AlertExpires = "Expires ";
-	ReadAlert = "Read the Full Alert";
-	degreeSymbol = "\370"; //ANSI/CP437 Degree Symbol
-}
-*/
-
 // API key weatherapi.com
 var wungrndAPIkey = opts.wungrndAPIkey; // This will pull the key from the modopts.ini file
 var weatherIcon = opts.weathericon_ext; // Now defined in the file /sbbs/ctrl/modopts.ini - see the sysop.txt instructions.
@@ -73,6 +50,99 @@ function callWeatherAPI(key,loc)
     var response = JSON.parse(resp); // Parse the JSON data returned
     return response;
 }
+
+function processWthrIcon(conditionCode,dayNightVal)
+{
+	//console.log("Current condition code: "+conditionCode);
+	//daynighticon3 = daynighticon3.slice(0,-1);
+
+	//var weatherIcon = "";
+
+	switch(conditionCode)
+	{
+		case 1000:
+            {
+                if(dayNightVal == 'day')
+                {
+                    weatherIcon = "sunny.asc";
+                }
+                else
+                {
+                    weatherIcon = "clear.asc";
+                }
+                return weatherIcon;
+            }
+		case 1003:
+			{
+                weatherIcon = "partlycloudy.asc";
+			    return weatherIcon;
+            }
+        case 1006:
+            {
+                weatherIcon = "cloudy.asc";
+                return weatherIcon;
+            }
+        case 1009:
+			{
+                weatherIcon = "cloudy.asc";
+                return weatherIcon;
+            }
+        case 1030: case 1063:
+            {
+                weatherIcon = "chancerain.asc";
+                return weatherIcon;
+            }
+        case 1066:
+            {
+                weatherIcon = "chancesnow.asc";
+                return weatherIcon;
+            }
+        case 1069: case 1072: case 1168:
+            {
+                weatherIcon = "chancesleet.asc";
+                return weatherIcon;
+            }
+        case 1087:
+            {
+                weatherIcon = "chancetstorms.asc";
+                return weatherIcon;
+            }
+        case 1114: case 1117: case 1210: case 1213: case 1216: case 1219: case 1222: case 1225: case 1237: case 1255: case 1258: case 1261: case 1264:
+            {
+                weatherIcon = "snow.asc";
+                return weatherIcon;
+            }
+        case 1135: case 1147:
+            {
+                weatherIcon = "fog.asc";
+                return weatherIcon;
+            }
+        case 1150: case 1153: case 1183: case 1186: case 1189: case 1192: case 1195: case 1240: case 1243: case 1246:
+			{
+                weatherIcon = "rain.asc";
+                return weatherIcon;
+            }
+        case 1171: case 1198: case 1201: case 1204: case 1207: case 1249: case 1252:
+            {
+                weatherIcon = "sleet.asc";
+                return weatherIcon;
+            }
+        case 1273: case 1276: case 1279: case 1282:
+            {
+                weatherIcon = "tstorms.asc";
+                return weatherIcon;
+            }
+		default:
+			{
+                weatherIcon = "unknown.asc"
+			    return weatherIcon;
+            }
+	}
+
+	return weatherIcon;
+
+}
+
 
 // Call the weather display function
 function processWeatherData(response)
@@ -126,16 +196,64 @@ function processWeatherData(response)
 
     // Starting to add icons to the display
     // 4/11/2023 - need to convert icon url from weatherapi.com to ASC version
-    var daynighticon = cu.current_observation.icon_url; //the icon_url has a default .gif icon that includes day vs. night
-    var daynighticon2 = daynighticon.slice(0,-4); //remove .gif extension
-    var daynighticon3 = daynighticon2.replace(/http:\/\/icons.wxug.com\/i\/c\/k\//i, ""); //remove url leading up to day or night icon name
+	var currentConditionCode = response.current.condition.code;	
+
+	var daynighticon = response.current.condition.icon; //the icon_url has a default .png icon that includes day vs. night
+    var daynighticon2 = daynighticon.slice(0,-7); //remove filename and .png extension
+    var daynighticon3 = daynighticon2.replace(/\/\/cdn.weatherapi.com\/weather\/64x64/i, ""); //remove url leading up to day or night
+	var daynighticon4 = daynighticon3.replace(/\//gi,"");
+
+    var weatherIconFile = processWthrIcon(currentConditionCode,daynighticon4);
+
     
     //use the icon line from the JSON response as a backup icon name, however this is always Day
     // icons and never Night icons so it is not preferable, but again is just a backup.
-    var dayicononly = cu.current_observation.icon; 
+    //var dayicononly = cu.current_observation.icon; 
 
 
     console.clear();
+
+    if(console.term_supports(USER_ANSI)) 
+    {
+        if (!file_exists(js.exec_dir + "icons/" + weatherIconFile)) 
+        {
+            var daynighticon4 = "";
+        }
+        if (!file_exists(js.exec_dir + "icons/" + weatherIconFile)) 
+        {
+            var dayicononly = "";
+        }
+        if (daynighticon3 != "") 
+        {
+            console.printfile(js.exec_dir + "icons/" + weatherIconFile);
+        } 
+        else if (dayicononly != "") 
+        {
+            console.printfile(js.exec_dir + "icons/" + weatherIconFile);
+        } 
+        else 
+        {
+            console.printfile(js.exec_dir + "icons/" + weatherIconFile);
+        }
+    //Force usage of .asc icons for NON-ANSI Terminal Users
+    } else 
+    {
+        if (!file_exists(js.exec_dir + "icons/" + weatherIconFile)) {
+            var daynighticon3 = "";
+        }
+        if (!file_exists(js.exec_dir + "icons/" + weatherIconFile)) {
+            var dayicononly = "";
+        }
+        if (daynighticon3 != "") {
+            console.printfile(js.exec_dir + "icons/" + weatherIconFile);
+        } else if (dayicononly != "") {
+            console.printfile(js.exec_dir + "icons/" + weatherIconFile);
+        } else {
+            console.printfile(js.exec_dir + "icons/" + weatherIconFile);
+        }
+    }
+
+
     if(console.term_supports(USER_ANSI)) 
     {
         console.gotoxy(20,2);
@@ -238,7 +356,7 @@ function processWeatherData(response)
         write("\r\n                   " + LocationHeader + locationCity+", "+locationState + "\r\n");
         write("                   " + ConditionsHeader + response.current.condition.text + "\r\n");
         //US gets Fahrenheit then Celsius, everyone else gets Celsius then Fahrenheit
-        if (weatherCountry == "US") {
+        if (weatherCountry == "USA") {
             write("                   " + TempHeader + response.current.temp_f + " F (" + response.current.temp_c + " C)" + "\r\n");
         } else {
             write("                   " + TempHeader + response.current.temp_c + " C (" + response.current.temp_f + " F)" + "\r\n");
