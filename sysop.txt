@@ -31,7 +31,8 @@ Setting up the Weather App (weather.js):
 wungrndAPIkey = <your API key here>
 weathericon_ext = .asc
 #fallback_type = bbsip
-#fallback = 
+fallback = <system zip code>
+wthrDays = <# of days you want forecast - up to 5>
 
 Change the entry for "wungrndAPIkey = <your API key here>" by adding your API Key from Section I. 
 	Example:
@@ -48,64 +49,15 @@ This makes updates to the weather.js file easier, since you don't have to edit t
        weathericon_ext = .asc
 
 Note: Please read section III below if you are adding a new set of custom ANSI or ASCII weather icons.
-
-4: The entry for "fallback_type" can be set to: 
-		nonip
-		bbsip
-a) nonip - Choosing this means you must set the entry for "fallback" to either a 
-           United States Postal ZIP Code, an ICAO Airport Code, or an IATA Airport Code.
-		   Note: ICAO Airport Codes seem more specific and less likely to error out. 
-		   
-		   See this link for ICAO Airport Codes:
-		   https://en.wikipedia.org/wiki/International_Civil_Aviation_Organization_airport_code#Prefixes
-		   
-		   See this link for IATA Airport Codes:
-		   https://en.wikipedia.org/wiki/International_Air_Transport_Association_airport_code
-		   
-			-Example with US Postal ZIP for Beverly Hills, CA:
-				fallback_type = nonip
-				fallback = 90210
-
-			-Example with ICAO Airport Code for Providence, RI:
-				fallback_type = nonip
-				fallback = KPVD
-			
-b) bbsip - weather.js will automatically grab the public IP address of your BBS.
-		   Or, if you are using the new Synchronet v4 WebUI from echicken, it will attempt
-		   to figure out the real IP address when a caller is using the HTML 5 ftelnet 
-		   browser terminal client, which uses Web Sockets to connect. 
-           In this case, "fallback" does not need to be set to anything. 
    
-5: Set up the External Door via Synchornet Configuration, External Programs
+4: Set up the External Door via Synchornet Configuration, External Programs
 
-Setting up the main door (weather_xtrn.js):
+Setting up the main door (weather.js):
 
 [weather.js]
  1: Name                       Your Local Weather
  2: Internal Code              SYNCWX
  3: Start-up Directory         ../xtrn/syncWX/
- 4: Command Line               ?weather_xtrn.js
- 5: Clean-up Command Line      
- 6: Execution Cost             None
- 7: Access Requirements        
- 8: Execution Requirements     
- 9: Multiple Concurrent Users  Yes
-10: Intercept Standard I/O     No
-11: Native (32-bit) Executable No
-12: Use Shell to Execute       No
-13: Modify User Data           No
-14: Execute on Event           No (or "Logon" or "Logon, Only", it is up to you)
-15: Pause After Execution      No
-16: BBS Drop File Type         None
-17: Place Drop File In         Node Directory
-18: Time Options...
-
-Setting up the logon door (weather.js):
-
-[weather.js]
- 1: Name                       Your Local Weather
- 2: Internal Code              SYNCWXL
- 3: Start-up Directory         ../xtrn/syncWXL/
  4: Command Line               ?weather.js
  5: Clean-up Command Line      
  6: Execution Cost             None
@@ -116,8 +68,8 @@ Setting up the logon door (weather.js):
 11: Native (32-bit) Executable No
 12: Use Shell to Execute       No
 13: Modify User Data           No
-14: Execute on Event           Logon, Only
-15: Pause After Execution      No
+14: Execute on Event           Logon (or "Logon" or "Logon, Only", it is up to you)
+15: Pause After Execution      No (already has a pause built-in)
 16: BBS Drop File Type         None
 17: Place Drop File In         Node Directory
 18: Time Options...
