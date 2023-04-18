@@ -32,7 +32,7 @@ wungrndAPIkey = <your API key here>
 weathericon_ext = .asc
 #fallback_type = bbsip
 fallback = <system zip code>
-wthrDays = <# of days you want forecast - up to 5>
+wthrDays = <# of days you want forecast - up to 3>
 
 Change the entry for "wungrndAPIkey = <your API key here>" by adding your API Key from Section I. 
 	Example:
