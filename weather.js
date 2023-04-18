@@ -7,10 +7,6 @@
 // This will get it to execute at logon only and not show in the 
 // external programs of your BBS
 
-// This is still under "construction"
-// The goal is to re-incorporate some of the features from the original
-// SyncWX code - icons, etc.
-
 log(user.ip_address); // for error tracking purposes - keeps the user's IP
 
 // This code is from the original inspiration - SyncWX 
@@ -28,17 +24,20 @@ load("http.js"); //this loads the http libraries which you will need to make req
 load("sbbsdefs.js"); //loads a bunch-o-stuff that is probably beyond the understanding of mere mortals 
 load(js.exec_dir + 'websocket-helpers.js');
 
-// API key weatherapi.com
-var wungrndAPIkey = opts.wungrndAPIkey; // This will pull the key from the modopts.ini file
-var weatherIcon = opts.weathericon_ext; // Now defined in the file /sbbs/ctrl/modopts.ini - see the sysop.txt instructions.
+// Get data from modopts.ini
+var wungrndAPIkey = opts.wungrndAPIkey; // This will pull the key from the modopts.ini file - free weatherapi.com API key
+//var weatherIcon = opts.weathericon_ext; // Now defined in the file /sbbs/ctrl/modopts.ini - see the sysop.txt instructions.
 var tempLocation = user.zipcode; // Pull user's zip code if available
+var days = opts.wthrDays; // Now defined in the file /sbbs/ctrl/modopts.ini
+var fallback = opts.fallback; // Now defined in the file /sbbs/ctrl/modopts.ini
 
 // Get user's zip code
+// This code is used at LOGON
 function getInfo()
 {
     if(tempLocation == "") // Check to see if the user has a zip code entered
     {
-        var wthrLocation = "22644"; // if not, set to system default zip code
+        var wthrLocation = fallback; // if not, set to system default zip code
     }
     else
     {
@@ -47,6 +46,7 @@ function getInfo()
     return wthrLocation;
 }
 
+// This code is used when running as an external app
 function askZipCode()
 {
     // Ask the user for input of the zip code they want for the weather
@@ -59,22 +59,18 @@ function askZipCode()
 
 // This function makes the http call to weatherapi.com
 // then returns the parsed JSON as response
-function callWeatherAPI(key,loc)
+function callWeatherAPI(key,loc,day)
 {
     // Setup request to get weather for user's zip code or system zip code
     var req = new HTTPRequest();
-    var resp = req.Get("http://api.weatherapi.com/v1/forecast.json?key="+key+"&q="+loc+"&days=3");
+    var resp = req.Get("http://api.weatherapi.com/v1/forecast.json?key="+key+"&q="+loc+"&days="+day+"");
     var response = JSON.parse(resp); // Parse the JSON data returned
     return response;
 }
 
 function processWthrIcon(conditionCode,dayNightVal)
 {
-	//console.log("Current condition code: "+conditionCode);
-	//daynighticon3 = daynighticon3.slice(0,-1);
-
-	//var weatherIcon = "";
-
+    // Matching weatherapi.com codes to icons
 	switch(conditionCode)
 	{
 		case 1000:
@@ -155,13 +151,11 @@ function processWthrIcon(conditionCode,dayNightVal)
 			    return weatherIcon;
             }
 	}
-
 	return weatherIcon;
-
 }
 
 // Call the weather display function
-function processWeatherData(response)
+function processWeatherData(response,day)
 {
     // From original SyncWX
     // Making wind direction arrows in CP437/ANSI
@@ -194,7 +188,8 @@ function processWeatherData(response)
 	var drkcy = "\001n\001c"; //Synchronet Ctrl-A Code for Dark (normal) Cyan
 	var cy = "\001c\1h"; //Synchronet Ctrl-A Code for High Intensity Cyan
 
-	LocationHeader = "Your Location: ";
+    // Header definition
+    LocationHeader = "Your Location: ";
 	ConditionsHeader = "Current Conditions: ";
 	TempHeader = "Temp: ";
 	SunHeader = "Sunrise/Sunset: ";
@@ -202,32 +197,28 @@ function processWeatherData(response)
 	WindHeader = "Wind: ";
 	UVHeader = "UV Index: ";
 	AlertExpires = "Expires ";
-	ReadAlert = "Read the Full Alert";
 	degreeSymbol = "\370"; //ANSI/CP437 Degree Symbol
 
+    // Setting some basic variables 
+    // Could probably change a lot of the calls in the display to variables
     var locationCity = response.location.name;
     var locationState = response.location.region;
     var weatherCountry = response.location.country;
     var currentWindCompass = response.current.wind_dir;
 
-    // Starting to add icons to the display
-    // 4/11/2023 - need to convert icon url from weatherapi.com to ASC version
-	var currentConditionCode = response.current.condition.code;	
-
-	var daynighticon = response.current.condition.icon; //the icon_url has a default .png icon that includes day vs. night
+    // Creating informaiton to match code to ASCII icons
+    var currentConditionCode = response.current.condition.code;	// get current condition code 
+    var daynighticon = response.current.condition.icon; //the icon_url has a default .png icon that includes day vs. night
     var daynighticon2 = daynighticon.slice(0,-7); //remove filename and .png extension
     var daynighticon3 = daynighticon2.replace(/\/\/cdn.weatherapi.com\/weather\/64x64/i, ""); //remove url leading up to day or night
-	var daynighticon4 = daynighticon3.replace(/\//gi,"");
-    
+    var daynighticon4 = daynighticon3.replace(/\//gi,""); // strips away any remaining characters - leaving day or night
 
-    var weatherIconFile = processWthrIcon(currentConditionCode,daynighticon4);
+    var weatherIconFile = processWthrIcon(currentConditionCode,daynighticon4); // calls function to match icon and code
 
-    //use the icon line from the JSON response as a backup icon name, however this is always Day
-    // icons and never Night icons so it is not preferable, but again is just a backup.
-    //var dayicononly = cu.current_observation.icon; 
-
+    // Clear screen and display data
     console.clear();
 
+    // Checks if there use is using ANSI
     if(console.term_supports(USER_ANSI)) 
     {
         if (!file_exists(js.exec_dir + "icons/" + weatherIconFile)) 
@@ -327,7 +318,7 @@ function processWeatherData(response)
         console.putmsg(wh + UVHeader + yl + response.current.uv);
     
         //Forecast summary
-        for (i = 0; i<3; i++)
+        for (i = 0; i < day; i++)
         {
             console.gotoxy(4+i*19,11);
             console.putmsg(wh + response.forecast.forecastday[i].date);
@@ -366,7 +357,7 @@ function processWeatherData(response)
         write("                   " + UVHeader + response.current.uv + "\r\n\r\n");
 
         //Forecast Summary
-        for (i = 0; i < 3; i++) 
+        for (i = 0; i < day; i++) 
         {
             write("         " + response.forecast.forecastday[i].date + ": ");
             var dailyConditions = response.forecast.forecastday[i].condition.text;
@@ -395,7 +386,7 @@ else
     var userLoc = askZipCode();
 }
 //var userLoc = getInfo();
-var wthrResp = callWeatherAPI(wungrndAPIkey,userLoc);
-processWeatherData(wthrResp);
+var wthrResp = callWeatherAPI(wungrndAPIkey,userLoc,days);
+processWeatherData(wthrResp,days);
 console.putmsg("\n\n");
 console.pause();
